@@ -1,2 +1,3 @@
-﻿  ConsoleShootingGame.cpp
-  ConsoleShootingGame.vcxproj -> C:\Users\kang\Desktop\practice\C++\ConsoleShootingGame\x64\Debug\ConsoleShootingGame.exe
+﻿  GameManager.cpp
+GameObject.obj : error LNK2001: unresolved external symbol "public: virtual void __cdecl ConsoleShootingGame::GameObject::Attack(void)" (?Attack@GameObject@ConsoleShootingGame@@UEAAXXZ)
+C:\Users\kang\Desktop\practice\C++\ConsoleShootingGame\x64\Debug\ConsoleShootingGame.exe : fatal error LNK1120: 1 unresolved externals
