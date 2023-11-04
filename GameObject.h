@@ -9,17 +9,17 @@ namespace ConsoleShootingGame
 {
 	class GameObject
 	{
-		friend class GameManager;
+		friend class Player;
 
 	public:
-		GameObject(const Vector2D_t localOrigin);
+		GameObject() = delete;
 		// GameObject(const Vector2D_t& other);
 		// GameObject& operator=(const Vector2D_t& other);
 		~GameObject() = default;
 
-		virtual void Attack();
-
 	protected:
+		GameObject(const Vector2D_t localOrigin);
+
 		Vector2D_t mLocalOrigin;
 	};
 }

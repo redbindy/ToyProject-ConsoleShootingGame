@@ -25,6 +25,7 @@ namespace ConsoleShootingGame
 		GameManager(const HANDLE primaryBuffer, const HANDLE secondaryBuffer);
 
 		int GetFrameIndex(const int x, const int y);
+		void overwriteObject(const wchar_t pixel);
 
 		static GameManager* s_instance;
 

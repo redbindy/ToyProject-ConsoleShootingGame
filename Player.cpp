@@ -2,6 +2,13 @@
 
 namespace ConsoleShootingGame
 {
+	Player::Player(const Vector2D_t localOrigin)
+		: GameObject(localOrigin)
+		, mVectors { { -1, 0 }, { 1, 0 }, { 0, 1 }, { -1, 1 }, { 1, 1 } }
+	{
+
+	}
+
 	void Player::Move()
 	{
 		if (GetAsyncKeyState(VK_LEFT) && GameObject::mLocalOrigin.x > 0)
@@ -27,6 +34,9 @@ namespace ConsoleShootingGame
 
 	void Player::Attack()
 	{
-
+		if (mAmmos.size() < AMMO_MAX)
+		{
+			GameObject* ammo = new GameObject(GameObject::mLocalOrigin);
+		}
 	}
 }

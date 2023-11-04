@@ -21,7 +21,7 @@ namespace ConsoleShootingGame
 		, mSecondaryBuffer(secondaryBuffer)
 		, mBackBuffer(mSecondaryBuffer)
 		, mbSwitched(true)
-		, mPlayerObject({ SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 })
+		, mPlayerObject({ SCREEN_WIDTH / 2, SCREEN_HEIGHT - 2 })
 	{
 		for (int y = SCREEN_HEIGHT - 1; y >= 0; --y)
 		{
@@ -37,8 +37,8 @@ namespace ConsoleShootingGame
 		mFrameBuffer[BUFFER_SIZE - 1] = '\0';
 
 		const COORD SIZE = {
-			SCREEN_WIDTH + 2,
-			SCREEN_HEIGHT
+			SCREEN_WIDTH << 1,
+			SCREEN_HEIGHT << 1
 		};
 
 		SetConsoleScreenBufferSize(mPrimaryBuffer, SIZE);
@@ -53,8 +53,6 @@ namespace ConsoleShootingGame
 
 		int retValue = SetConsoleWindowInfo(mPrimaryBuffer, true, &rect);
 		ASSERT(retValue != 0, "Failed SetConsoleWindowInfo");
-
-		Sleep(100); // Sleep 없더라도 어떤 형태로든 딜레이를 줘야 다음 ASSERT 실패 안 함...
 
 		retValue = SetConsoleWindowInfo(mSecondaryBuffer, true, &rect);
 		ASSERT(retValue != 0, "Failed SetConsoleWindowInfo");
@@ -74,11 +72,11 @@ namespace ConsoleShootingGame
 
 	void GameManager::Run()
 	{
-		mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x, mPlayerObject.mLocalOrigin.y)] = ' ';
+		overwriteObject(L' ');
 
 		mPlayerObject.Move();
 
-		mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x, mPlayerObject.mLocalOrigin.y)] = 'x';
+		overwriteObject(L'x');
 
 		int retValue = WriteConsole(mBackBuffer, mFrameBuffer, BUFFER_SIZE, nullptr, nullptr);
 		ASSERT(retValue != 0, "Failed WriteConsole");
@@ -101,6 +99,17 @@ namespace ConsoleShootingGame
 
 	int GameManager::GetFrameIndex(const int x, const int y)
 	{
-		return mPlayerObject.mLocalOrigin.y * (SCREEN_WIDTH + 1) + mPlayerObject.mLocalOrigin.x;
+		return y * (SCREEN_WIDTH + 1) + x;
+	}
+
+	void GameManager::overwriteObject(const wchar_t pixel)
+	{
+		mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x, mPlayerObject.mLocalOrigin.y)] = pixel;
+
+		for (int i = VECTOR_COUNT - 1; i >= 0; --i)
+		{
+			mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x + mPlayerObject.mVectors[i].x,
+									   mPlayerObject.mLocalOrigin.y + mPlayerObject.mVectors[i].y)] = pixel;
+		}
 	}
 }
