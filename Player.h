@@ -1,14 +1,18 @@
 #pragma once
 
+#pragma comment(lib, "Winmm.lib")
+
 #include <Windows.h>
 #include <queue>
 #include <time.h>
+#include <mmsystem.h>
 
 #include "eScreenInfo.h"
 #include "GameObject.h"
 #include "Ammo.h"
 #include "IMovable.h"
 #include "IAttackable.h"
+#include "ICollisionListener.h"
 
 namespace ConsoleShootingGame
 {
@@ -16,12 +20,13 @@ namespace ConsoleShootingGame
 	{
 		VECTOR_COUNT_PLAYER = 5,
 
+		MAX_HP = 5,
 		AMMO_MAX = 4,
 
-		ATTACK_DELAY = 500
+		ATTACK_DELAY_PLAYER = 250
 	};
 
-	class Player final : public GameObject, public IMovable, public IAttackable
+	class Player final : public GameObject, public IMovable, public IAttackable, public ICollisionListener
 	{
 		friend class GameManager;
 
@@ -34,9 +39,13 @@ namespace ConsoleShootingGame
 		void Move() override;
 		Ammo* AttackOrNull() override;
 
-		void RetrieveAmmo(Ammo* ammo) override;
+		void RetrieveAmmo(Ammo* ammo);
+
+		void OnCollision() override;
 
 	private:
+		int mHp;
+
 		Vector2D_t mVectors[VECTOR_COUNT_PLAYER];
 
 		std::queue<Ammo*> mAmmos;

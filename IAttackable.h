@@ -8,7 +8,6 @@ namespace ConsoleShootingGame
     {
     public:
         virtual Ammo* AttackOrNull() = 0;
-        virtual void RetrieveAmmo(Ammo* ammo) = 0;
 
     private:
     };

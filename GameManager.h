@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 #include <queue>
-#include <random>
+#include <time.h>
 
 #include "eScreenInfo.h"
 #include "Player.h"
@@ -11,6 +11,11 @@
 
 namespace ConsoleShootingGame
 {
+	enum
+	{
+		ENEMY_COUNT = 10
+	};
+
 	class Player;
 
 	class GameManager final
@@ -25,14 +30,14 @@ namespace ConsoleShootingGame
 		GameManager* operator=(const GameManager& other) = delete;
 		~GameManager();
 
-		void Run();
+		bool Run();
 		void RegisterAmmo(Ammo* ammo);
 
 	private:
 		GameManager(const HANDLE primaryBuffer, const HANDLE secondaryBuffer);
 
 		int GetFrameIndex(const int x, const int y);
-		void overwriteObject(const wchar_t objectPixel);
+		void overwriteObject(const wchar_t playerPixel, const wchar_t enemyPixel);
 
 		static GameManager* s_instance;
 
@@ -47,6 +52,12 @@ namespace ConsoleShootingGame
 		Player mPlayerObject;
 		std::queue<Ammo*> mPlayerAmmos;
 
-		std::vector<Enemy> mEnemies;
+		std::queue<Enemy*> mEnemyQueue;
+		std::vector<Enemy*> mEnemies;
+
+		inline bool isClipPixel(const int x, const int y)
+		{
+			return x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT;
+		}
 	};
 }

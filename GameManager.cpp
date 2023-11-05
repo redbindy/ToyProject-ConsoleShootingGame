@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "GameManager.h"
 
 namespace ConsoleShootingGame
@@ -57,17 +59,23 @@ namespace ConsoleShootingGame
         retValue = SetConsoleWindowInfo(mSecondaryBuffer, true, &rect);
         ASSERT(retValue != 0, "Failed SetConsoleWindowInfo");
 
-        Enemy e({ 10, 10 });
-        mEnemies.push_back(e);
+        srand(time(nullptr));
+
+        for (int i = ENEMY_COUNT; i > 0; --i)
+        {
+            mEnemyQueue.push(new Enemy({ 0, 0 }));
+        }
+
+        mEnemies.reserve(ENEMY_COUNT);
     }
 
     GameManager::~GameManager()
     {
-        while (!mPlayerAmmos.empty())
+        /*while (!mPlayerAmmos.empty())
         {
             delete mPlayerAmmos.front();
             mPlayerAmmos.pop();
-        }
+        }*/
     }
 
     GameManager* GameManager::GetInstance()
@@ -77,27 +85,53 @@ namespace ConsoleShootingGame
         return s_instance;
     }
 
-    void GameManager::DeleteInstance()
+    /*void GameManager::DeleteInstance()
     {
         delete s_instance;
-    }
+    }*/
 
-    void GameManager::Run()
+    bool GameManager::Run()
     {
-        overwriteObject(L' ');
-
-        mPlayerObject.Move();
-        Ammo* newAmmo = mPlayerObject.AttackOrNull();
-
-        if (newAmmo != nullptr)
+        if (mPlayerObject.mHp == 0)
         {
-            mPlayerAmmos.push(newAmmo);
+            memset(mFrameBuffer, 0, BUFFER_SIZE * sizeof(wchar_t));
+            _swprintf(mFrameBuffer, TEXT("\n\n\n\n\nGAME OVER!\n\n\n\n\n"));
+
+            SetConsoleActiveScreenBuffer(mBackBuffer);
+            system("cls");
+
+            WriteConsole(mBackBuffer, mFrameBuffer, BUFFER_SIZE, nullptr, nullptr);
+
+            system("pause");
+
+            return false;
         }
 
+        if (mEnemies.size() < ENEMY_COUNT)
         {
-            int loopCount = mPlayerAmmos.size();
+            Enemy* newEnemy = mEnemyQueue.front();
+            mEnemyQueue.pop();
 
-            for (int i = loopCount - 1; i >= 0; --i)
+            newEnemy->mLocalOrigin = { rand() % SCREEN_WIDTH, rand() % (SCREEN_HEIGHT / 2) };
+            newEnemy->mIsAlive = true;
+            newEnemy->Reload();
+
+            mEnemies.push_back(newEnemy);
+        }
+
+        overwriteObject(L' ', L' ');
+
+        // Player action
+        {
+            mPlayerObject.Move();
+            Ammo* newAmmo = mPlayerObject.AttackOrNull();
+
+            if (newAmmo != nullptr)
+            {
+                mPlayerAmmos.push(newAmmo);
+            }
+
+            for (int i = mPlayerAmmos.size(); i > 0; --i)
             {
                 Ammo* ammo = mPlayerAmmos.front();
                 mPlayerAmmos.pop();
@@ -119,11 +153,106 @@ namespace ConsoleShootingGame
             }
         }
 
+        // Enemy action
         {
+            for (Enemy* e : mEnemies)
+            {
+                Ammo* ammo = e->AttackOrNull();
 
+                if (ammo != nullptr)
+                {
+                    mFrameBuffer[GetFrameIndex(ammo->mLocalOrigin.x, ammo->mLocalOrigin.y)] = ' ';
+
+                    ammo->Move();
+
+                    if (ammo->mLocalOrigin.y < SCREEN_HEIGHT)
+                    {
+                        mFrameBuffer[GetFrameIndex(ammo->mLocalOrigin.x, ammo->mLocalOrigin.y)] = '@';
+                    }
+                    else
+                    {
+                        e->Reload();
+                    }
+                }
+            }
         }
 
-        overwriteObject(L'x');
+        // CollisionCheck
+        {
+            const Vector2D_t playerPos = mPlayerObject.mLocalOrigin;
+
+            for (Enemy* e : mEnemies)
+            {
+                const Vector2D_t ammoPos = e->mAmmo->mLocalOrigin;
+
+                if (playerPos.x == ammoPos.x && playerPos.y == ammoPos.y)
+                {
+                    mPlayerObject.OnCollision();
+
+                    continue;
+                }
+
+                for (const Vector2D_t v : mPlayerObject.mVectors)
+                {
+                    if (playerPos.x + v.x == ammoPos.x && playerPos.y + v.y == ammoPos.y)
+                    {
+                        mPlayerObject.OnCollision();
+
+                        break;
+                    }
+                }
+            }
+
+            for (int i = mPlayerAmmos.size(); i > 0; --i)
+            {
+                Ammo* ammo = mPlayerAmmos.front();
+
+                Vector2D_t ammoPos = ammo->mLocalOrigin;
+
+                mPlayerAmmos.pop();
+                {
+                    for (std::vector<Enemy*>::iterator iter = mEnemies.begin(); iter != mEnemies.end();)
+                    {
+                        Vector2D_t enemyPos = (*iter)->mLocalOrigin;
+
+                        if (enemyPos.x == ammoPos.x && enemyPos.y == ammoPos.y)
+                        {
+                            (*iter)->OnCollision();
+
+                            mFrameBuffer[GetFrameIndex((*iter)->mAmmo->mLocalOrigin.x, (*iter)->mAmmo->mLocalOrigin.y)] = L' ';
+
+                            mEnemyQueue.push(*iter);
+                            iter = mEnemies.erase(iter);
+
+                            continue;
+                        }
+
+                        for (Vector2D_t v : (*iter)->mVectors)
+                        {
+                            if (enemyPos.x + v.x == ammoPos.x && enemyPos.y + v.y == ammoPos.y)
+                            {
+                                (*iter)->OnCollision();
+
+                                mFrameBuffer[GetFrameIndex((*iter)->mAmmo->mLocalOrigin.x, (*iter)->mAmmo->mLocalOrigin.y)] = L' ';
+
+                                mEnemyQueue.push(*iter);
+                                iter = mEnemies.erase(iter);
+
+                                goto next;
+                            }
+                        }
+
+                        ++iter;
+
+                    next:;
+                    }
+                }
+
+                mPlayerAmmos.push(ammo);
+            }
+        }
+
+        overwriteObject(L'x', 'O');
 
         int retValue = WriteConsole(mBackBuffer, mFrameBuffer, BUFFER_SIZE, nullptr, nullptr);
         ASSERT(retValue != 0, "Failed WriteConsole");
@@ -142,6 +271,8 @@ namespace ConsoleShootingGame
         mbSwitched = !mbSwitched;
 
         Sleep(1000 / FPS);
+
+        return true;
     }
 
     void GameManager::RegisterAmmo(Ammo* ammo)
@@ -154,24 +285,38 @@ namespace ConsoleShootingGame
         return y * (SCREEN_WIDTH + 1) + x;
     }
 
-    void GameManager::overwriteObject(const wchar_t objectPixel)
+    void GameManager::overwriteObject(const wchar_t playerPixel, const wchar_t enemyPixel)
     {
-        mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x, mPlayerObject.mLocalOrigin.y)] = objectPixel;
+        mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x, mPlayerObject.mLocalOrigin.y)] = playerPixel;
 
         for (int i = VECTOR_COUNT_PLAYER - 1; i >= 0; --i)
         {
-            mFrameBuffer[GetFrameIndex(mPlayerObject.mLocalOrigin.x + mPlayerObject.mVectors[i].x,
-                                       mPlayerObject.mLocalOrigin.y + mPlayerObject.mVectors[i].y)] = objectPixel;
+            int x = mPlayerObject.mLocalOrigin.x + mPlayerObject.mVectors[i].x;
+            int y = mPlayerObject.mLocalOrigin.y + mPlayerObject.mVectors[i].y;
+
+            if (isClipPixel(x, y))
+            {
+                continue;
+            }
+
+            mFrameBuffer[GetFrameIndex(x, y)] = playerPixel;
         }
 
-        for (Enemy& e : mEnemies)
+        for (Enemy* e : mEnemies)
         {
-            mFrameBuffer[GetFrameIndex(e.mLocalOrigin.x, e.mLocalOrigin.y)] = objectPixel;
+            mFrameBuffer[GetFrameIndex(e->mLocalOrigin.x, e->mLocalOrigin.y)] = enemyPixel;
 
             for (int i = VECTOR_COUNT_ENEMY - 1; i >= 0; --i)
             {
-                mFrameBuffer[GetFrameIndex(e.mLocalOrigin.x + e.vectors[i].x, 
-                                           e.mLocalOrigin.y + e.vectors[i].y)] = objectPixel;
+                int x = e->mLocalOrigin.x + e->mVectors[i].x;
+                int y = e->mLocalOrigin.y + e->mVectors[i].y;
+
+                if (isClipPixel(x, y))
+                {
+                    continue;
+                }
+
+                mFrameBuffer[GetFrameIndex(x, y)] = enemyPixel;
             }
         }
     }

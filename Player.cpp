@@ -6,6 +6,7 @@ namespace ConsoleShootingGame
 
 	Player::Player(const Vector2D_t localOrigin)
 		: GameObject(localOrigin)
+		, mHp(MAX_HP)
 		, mVectors { { -1, 0 }, { 1, 0 }, { 0, 1 }, { -1, 1 }, { 1, 1 } }
 	{
 		for (int i = AMMO_MAX - 1; i >= 0; --i)
@@ -48,7 +49,7 @@ namespace ConsoleShootingGame
 
 	Ammo* Player::AttackOrNull()
 	{
-		if (mAmmos.empty() || !GetAsyncKeyState(VK_SPACE) || clock() - s_lastPressTime < ATTACK_DELAY)
+		if (mAmmos.empty() || !GetAsyncKeyState(VK_SPACE) || clock() - s_lastPressTime < ATTACK_DELAY_PLAYER)
 		{
 			return nullptr;
 		}
@@ -62,6 +63,8 @@ namespace ConsoleShootingGame
 
 		s_lastPressTime = clock();
 
+		PlaySound(TEXT(".\\SoundData\\PlayerAttack.wav"), nullptr, SND_ASYNC);
+
 		return ammo;
 	}
 
@@ -70,5 +73,10 @@ namespace ConsoleShootingGame
 		ASSERT(ammo != nullptr, "ammo should be not null");
 
 		mAmmos.push(ammo);
+	}
+
+	void Player::OnCollision()
+	{
+		--mHp;
 	}
 }

@@ -2,26 +2,34 @@
 
 namespace ConsoleShootingGame
 {
+    clock_t Enemy::s_lastAttackTime = clock();
+
     Enemy::Enemy(const Vector2D_t localOrigin)
         : GameObject(localOrigin)
-        , vectors{ {-2, 0}, {-1, 0}, {1, 0}, {2,0} }
-        , mAmmoOrNull(new Ammo({ 0, 0 }, 1))
+        , mIsAlive(true)
+        , mVectors{ {-2, 0}, {-1, 0}, {1, 0}, {2,0} }
+        , mAmmo(new Ammo(localOrigin, 1))
     {
 
     }
 
     Ammo* Enemy::AttackOrNull()
     {
-        if (mAmmoOrNull->mLocalOrigin.y == SCREEN_HEIGHT)
+        if (mAmmo->mLocalOrigin.y == SCREEN_HEIGHT || clock() - s_lastAttackTime < ATTACK_DELAY_ENEMY)
         {
             return nullptr;
         }
 
-        return mAmmoOrNull;
+        return mAmmo;
     }
 
-    void Enemy::RetrieveAmmo(Ammo* ammo)
+    void Enemy::Reload()
     {
-        mAmmoOrNull->mLocalOrigin = GameObject::mLocalOrigin;
+        mAmmo->mLocalOrigin = GameObject::mLocalOrigin;
+    }
+
+    void Enemy::OnCollision()
+    {
+        mIsAlive = false;
     }
 }

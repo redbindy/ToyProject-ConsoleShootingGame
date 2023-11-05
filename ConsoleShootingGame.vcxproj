@@ -127,14 +127,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ammo.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ammo.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="IAttackable.h" />
+    <ClInclude Include="ICollisionListener.h" />
+    <ClInclude Include="IMovable.h" />
     <ClInclude Include="MyDebug.h" />
     <ClInclude Include="eScreenInfo.h" />
     <ClInclude Include="Player.h" />

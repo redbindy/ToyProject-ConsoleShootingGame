@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <stdio.h>
 
 #include "MyDebug.h"
 #include "GameManager.h"
@@ -33,10 +34,13 @@ int main()
 	{
 		while (true)
 		{
-			ConsoleShootingGame::GameManager::GetInstance()->Run();
+			if (!ConsoleShootingGame::GameManager::GetInstance()->Run())
+			{
+				break;
+			}
 		}
 	}
-	ConsoleShootingGame::GameManager::DeleteInstance();
+	// ConsoleShootingGame::GameManager::DeleteInstance();
 
 	return NO_ERROR;
 }
