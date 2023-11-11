@@ -71,11 +71,11 @@ namespace ConsoleShootingGame
 
     GameManager::~GameManager()
     {
-        /*while (!mPlayerAmmos.empty())
+        while (!mPlayerAmmos.empty())
         {
             delete mPlayerAmmos.front();
             mPlayerAmmos.pop();
-        }*/
+        }
     }
 
     GameManager* GameManager::GetInstance()
@@ -85,10 +85,10 @@ namespace ConsoleShootingGame
         return s_instance;
     }
 
-    /*void GameManager::DeleteInstance()
+    void GameManager::DeleteInstance()
     {
         delete s_instance;
-    }*/
+    }
 
     bool GameManager::Run()
     {
@@ -147,9 +147,8 @@ namespace ConsoleShootingGame
                 else
                 {
                     mPlayerAmmos.push(ammo);
+                    mFrameBuffer[GetFrameIndex(ammo->mLocalOrigin.x, ammo->mLocalOrigin.y)] = '*';
                 }
-
-                mFrameBuffer[GetFrameIndex(ammo->mLocalOrigin.x, ammo->mLocalOrigin.y)] = '*';
             }
         }
 
@@ -254,8 +253,13 @@ namespace ConsoleShootingGame
 
         overwriteObject(L'x', 'O');
 
+        wchar_t userInfoStr[SCREEN_WIDTH];
+        _swprintf(userInfoStr, TEXT("Player - HP: %d AMMO: %ld\n"), mPlayerObject.mHp, mPlayerObject.mAmmos.size());
+
         int retValue = WriteConsole(mBackBuffer, mFrameBuffer, BUFFER_SIZE, nullptr, nullptr);
         ASSERT(retValue != 0, "Failed WriteConsole");
+
+        WriteConsole(mBackBuffer, userInfoStr, wcslen(userInfoStr), nullptr, nullptr);
 
         SetConsoleActiveScreenBuffer(mBackBuffer);
 

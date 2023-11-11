@@ -2,8 +2,6 @@
 
 namespace ConsoleShootingGame
 {
-    clock_t Enemy::s_lastAttackTime = clock();
-
     Enemy::Enemy(const Vector2D_t localOrigin)
         : GameObject(localOrigin)
         , mIsAlive(true)
@@ -15,7 +13,7 @@ namespace ConsoleShootingGame
 
     Ammo* Enemy::AttackOrNull()
     {
-        if (mAmmo->mLocalOrigin.y == SCREEN_HEIGHT || clock() - s_lastAttackTime < ATTACK_DELAY_ENEMY)
+        if (mAmmo->mLocalOrigin.y == SCREEN_HEIGHT)
         {
             return nullptr;
         }

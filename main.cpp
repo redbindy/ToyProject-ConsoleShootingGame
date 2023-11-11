@@ -40,7 +40,7 @@ int main()
 			}
 		}
 	}
-	// ConsoleShootingGame::GameManager::DeleteInstance();
+	ConsoleShootingGame::GameManager::DeleteInstance();
 
 	return NO_ERROR;
 }

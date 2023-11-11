@@ -1,7 +1,8 @@
 ﻿  GameManager.cpp
 C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(62,19): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(134,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(206,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  main.cpp
-  Generating Code...
+C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(205,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(257,32): warning C4477: '_swprintf' : format string '%ld' requires an argument of type 'long', but variadic argument 2 has type 'unsigned __int64'
+C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(257,32): message : consider using '%zd' in the format string
+C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\GameManager.cpp(262,54): warning C4267: 'argument': conversion from 'size_t' to 'DWORD', possible loss of data
   ConsoleShootingGame.vcxproj -> C:\Users\redbindy\Desktop\practice\C++\ConsoleShootingGame\x64\Debug\ConsoleShootingGame.exe

@@ -1,6 +1,11 @@
 #pragma once
 
+#pragma comment(lib, "winmm.lib")
+
 #include <time.h>
+#include <Windows.h>
+#include <mmsystem.h>
+#include <Digitalv.h>
 
 #include "eScreenInfo.h"
 #include "MyDebug.h"
@@ -37,7 +42,5 @@ namespace ConsoleShootingGame
         Vector2D_t mVectors[VECTOR_COUNT_ENEMY];
 
         Ammo* mAmmo;
-
-        static clock_t s_lastAttackTime;
     };
 }
